@@ -1,30 +1,63 @@
-name: Build and Deploy
+name: deploy_firebase_hosting
 on:
   push:
     branches:
       - main
-
 jobs:
-  build:
-    name: Build
+  deploy_firebase_hosting:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repo
+      - name: Checkout the repository
         uses: actions/checkout@master
-      - name: Install Dependencies
-        run: npm install
+	# ポイント１
+	# ↓↓↓ node_modulesはgit管理していないと思いますので、ここで、nodeモジュールを取得するコマンドをjobとして設定します。
+      - name: Install Dependencies # ← コマンド識別名
+        run: yarn install　# ← 実際のコマンド
+	# ポイント２
+	# ↓↓↓ ビルドファイルを作成するためのコマンド
       - name: Build
-        run: npm run build
-  deploy:
-    name: Deploy
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repo
-        uses: actions/checkout@master
+        run: yarn run build
+	# ポイント３
+	# ↓↓↓ Firebaseのデプロイコマンドここに先ほど控えたトークンを貼り付けます
       - name: Deploy to Firebase
-        uses: w9jds/firebase-action@master
-        with:
-          args: deploy --only hosting
+        run: yarn deploy 
         env:
           GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+
+
+
+
+
+
+
+
+#name: Build and Deploy
+#on:
+#  push:
+#    branches:
+#      - main
+
+#jobs:
+#  build:
+#    name: Build
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Checkout Repo
+#        uses: actions/checkout@master
+#      - name: Install Dependencies
+#        run: npm install
+#      - name: Build
+#        run: npm run build
+#  deploy:
+#    name: Deploy
+#    needs: build
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Checkout Repo
+#        uses: actions/checkout@master
+#      - name: Deploy to Firebase
+#        uses: w9jds/firebase-action@master
+#        with:
+#          args: deploy --only hosting
+#        env:
+#          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
