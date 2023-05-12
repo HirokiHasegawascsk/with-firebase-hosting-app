@@ -3,38 +3,15 @@ on:
   push:
     branches:
       - main
-
 jobs:
-  build:
-    name: Build
+  deploy_live_website:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repo
-        uses: actions/checkout@master
-      - name: Install Dependencies
-        run: npm install
-      - name: Build
-        run: npm run build
-      - name: Archive Production Artifact
-        uses: actions/upload-artifact@master
+      - uses: actions/checkout@v2
+      # Add any build steps here. For example:
+      - run: npm ci && npm run build
+      - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
-          name: dist
-          path: dist
-  deploy:
-    name: Deploy
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repo
-        uses: actions/checkout@master
-      - name: Download Artifact
-        uses: actions/download-artifact@master
-        with:
-          name: dist
-          path: dist
-      - name: Deploy to Firebase
-        uses: w9jds/firebase-action@master
-        with:
-          args: deploy --only hosting
-        env:
-          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+          firebaseServiceAccount:  ${{ secrets.GCP_SA_KEY }}
+          projectId: kaigofika-poc01
+          channelId: live
